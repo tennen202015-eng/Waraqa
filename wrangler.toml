@@ -11,7 +11,7 @@ binding = "ASSETS"
 [[d1_databases]]
 binding = "DB"
 database_name = "waraqa-db"
-database_id = "__D1_ID__"
+database_id = "0e9a9252-18e4-491d-89de-73ee46e55455"
 migrations_dir = "migrations"
 
 # Optional: add an R2 bucket with binding FILES (see SETUP.md). Without it, images are stored in D1.

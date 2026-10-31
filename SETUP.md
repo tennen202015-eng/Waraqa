@@ -2,7 +2,7 @@
 
 ## 1. أنشئ قاعدة البيانات
 من لوحة Cloudflare: **Storage & Databases** ← **D1 SQL Database** ← **Create**.
-اسمها: `waraqa-db`. بعد الإنشاء انسخ **Database ID** وضعه في `wrangler.toml` مكان `__D1_ID__`.
+اسمها: `waraqa-db`. بعد الإنشاء انسخ **Database ID** وضعه في `wrangler.toml` (موجود الآن).
 الجداول تُنشأ تلقائياً عند أول استخدام، فلا تحتاج لكتابة أي SQL.
 
 ## 2. اربط المستودع
