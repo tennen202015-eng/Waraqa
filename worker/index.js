@@ -254,11 +254,29 @@ async function handleApi(req, env, url) {
   throw new HttpErr(404, 'not_found');
 }
 
+// Create the tables on first use, so no manual database setup is needed.
+const SCHEMA = [
+  'CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, email TEXT NOT NULL UNIQUE, name TEXT, pass_hash TEXT NOT NULL, salt TEXT NOT NULL, created_at INTEGER NOT NULL)',
+  'CREATE TABLE IF NOT EXISTS sessions (token_hash TEXT PRIMARY KEY, user_id TEXT NOT NULL, expires_at INTEGER NOT NULL)',
+  'CREATE INDEX IF NOT EXISTS sessions_user ON sessions (user_id)',
+  'CREATE TABLE IF NOT EXISTS items (id TEXT PRIMARY KEY, user_id TEXT NOT NULL, kind TEXT NOT NULL, name TEXT, data TEXT NOT NULL, updated_at INTEGER NOT NULL)',
+  'CREATE INDEX IF NOT EXISTS items_user_kind ON items (user_id, kind, updated_at)',
+  'CREATE TABLE IF NOT EXISTS files (id TEXT PRIMARY KEY, user_id TEXT NOT NULL, type TEXT NOT NULL, size INTEGER NOT NULL, data BLOB, created_at INTEGER NOT NULL)',
+  'CREATE INDEX IF NOT EXISTS files_user ON files (user_id)',
+  'CREATE TABLE IF NOT EXISTS login_attempts (email TEXT PRIMARY KEY, count INTEGER NOT NULL, first_at INTEGER NOT NULL)',
+];
+let schemaReady = null;
+function ensureSchema(env) {
+  if (!schemaReady) schemaReady = env.DB.batch(SCHEMA.map((q) => env.DB.prepare(q))).catch((e) => { schemaReady = null; throw e; });
+  return schemaReady;
+}
+
 export default {
   async fetch(req, env) {
     const url = new URL(req.url);
     if (!url.pathname.startsWith('/api/')) return env.ASSETS.fetch(req);
     try {
+      await ensureSchema(env);
       return await handleApi(req, env, url);
     } catch (e) {
       if (e instanceof HttpErr) return json({ error: e.code }, e.status);
