@@ -1,0 +1,59 @@
+name: Deploy to Cloudflare
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check secrets
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::error::Add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID in Settings > Secrets and variables > Actions"
+            exit 1
+          fi
+
+      - name: Install Wrangler
+        run: npm install -g wrangler@4
+
+      - name: Create or find the D1 database
+        run: |
+          find_id() { wrangler d1 list --json | jq -r '.[] | select(.name=="waraqa-db") | .uuid'; }
+          ID=$(find_id)
+          if [ -z "$ID" ]; then
+            wrangler d1 create waraqa-db
+            ID=$(find_id)
+          fi
+          if [ -z "$ID" ]; then echo "::error::Could not create the D1 database"; exit 1; fi
+          sed -i "s/__D1_ID__/$ID/" wrangler.toml
+
+      - name: Use R2 for images when available
+        run: |
+          if wrangler r2 bucket list 2>/dev/null | grep -q "waraqa-files" || wrangler r2 bucket create waraqa-files; then
+            printf '\n[[r2_buckets]]\nbinding = "FILES"\nbucket_name = "waraqa-files"\n' >> wrangler.toml
+            echo "R2 bucket waraqa-files is in use"
+          else
+            echo "::warning::R2 is not enabled on this account; images will be stored in D1"
+          fi
+
+      - name: Apply database migrations
+        run: wrangler d1 migrations apply waraqa-db --remote
+
+      - name: Deploy
+        run: wrangler deploy

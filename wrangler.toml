@@ -1,0 +1,18 @@
+name = "waraqa"
+main = "worker/index.js"
+compatibility_date = "2025-09-01"
+
+# The app itself (index.html) is served as static assets; everything under /api/ goes to the Worker.
+[assets]
+directory = "."
+binding = "ASSETS"
+
+# The deploy workflow fills in the database id automatically.
+[[d1_databases]]
+binding = "DB"
+database_name = "waraqa-db"
+database_id = "__D1_ID__"
+migrations_dir = "migrations"
+
+# An R2 bucket (binding FILES) is added by the deploy workflow when R2 is enabled on the account.
+# Without it, logos and signatures are stored in the D1 database instead.
