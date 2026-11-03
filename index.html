@@ -330,6 +330,14 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .sigs .sg img{max-width:100%;max-height:100%}
 .sigs .sg .x{position:absolute;top:-8px;inset-inline-end:-8px;width:22px;height:22px;border-radius:50%;border:0;background:var(--ink);color:var(--bg);display:grid;place-items:center;cursor:pointer}
 .mcard.wide{width:min(580px,100%)}
+.sgc-stage{display:grid;place-items:center;border-radius:12px;padding:10px;background-color:#ffffff;background-image:linear-gradient(45deg,#e4e7ec 25%,transparent 25%),linear-gradient(-45deg,#e4e7ec 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e4e7ec 75%),linear-gradient(-45deg,transparent 75%,#e4e7ec 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0}
+#sgc-cv{display:block;max-width:100%;touch-action:none;cursor:move}
+.sigs .sg .ed{position:absolute;bottom:-8px;inset-inline-end:-8px;width:24px;height:24px;border-radius:50%;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);display:grid;place-items:center;cursor:pointer}
+.sgsz{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.sgsz .r{display:flex;align-items:center;gap:10px}
+.sgsz .r img{width:56px;height:28px;object-fit:contain;background:#ffffff;border:1px solid var(--line);border-radius:6px}
+.sgsz .r input{flex:1;min-width:0}
+.sgsz .r output{font-size:12.5px;color:var(--muted);min-width:42px;text-align:center;font-variant-numeric:tabular-nums}
 .tb-right{display:flex;align-items:center;gap:8px}
 #acct-btn{max-width:180px}
 #acct-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -750,7 +758,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
         <div class="field"><label for="lt-body">نص الخطاب</label><textarea id="lt-body" rows="9" placeholder="اكتب نص الخطاب هنا"></textarea><span class="hint">للكلام العريض ضعه بين **نجمتين**، ولعمل قائمة ابدأ السطر بـ «- ».</span></div>
         <div class="field"><label for="lt-close">الختام</label><input type="text" id="lt-close" value="وتفضلوا بقبول فائق الاحترام والتقدير،"></div>
         <div class="fields"><div class="field"><label for="lt-name">الاسم</label><input type="text" id="lt-name"></div><div class="field"><label for="lt-title">الصفة</label><input type="text" id="lt-title" placeholder="المدير العام"></div></div>
-        <div class="field"><span class="lab">التوقيع والختم (اختر واحداً أو أكثر)</span><div class="sigs" id="lt-sigs"></div>
+        <div class="field"><span class="lab">التوقيع والختم (اختر واحداً أو أكثر)</span><div class="sigs" id="lt-sigs"></div><div class="sgsz" id="lt-sigsz"></div>
           <div class="prow2"><button class="btn sm" id="lt-newsig"><i data-ic="sign" data-s="16"></i>رسم توقيع</button><label class="btn sm" for="lt-sigimg"><i data-ic="image" data-s="16"></i>صورة ختم أو توقيع</label><input type="file" id="lt-sigimg" class="vh" accept="image/*,.heic,.heif"></div></div>
         <div class="fields"><div class="field"><label for="lt-cc">نسخة إلى</label><input type="text" id="lt-cc" placeholder="اختياري"></div><div class="field"><label for="lt-att">المرفقات</label><input type="text" id="lt-att" placeholder="اختياري"></div></div>
         <div class="fields"><div class="field"><label for="lt-font">نوع الخط</label><select id="lt-font"><option value="plex">IBM Plex (حديث)</option><option value="amiri">أميري (رسمي تقليدي)</option><option value="naskh">نسخ</option><option value="tajawal">تجوال (عصري)</option><option value="cairo">القاهرة (عريض وواضح)</option></select></div>
@@ -912,6 +920,13 @@ input[type=range]{width:100%;accent-color:var(--accent)}
   <div class="prow2" style="justify-content:space-between"><div class="swatches" id="sig-colors"><button class="sw" style="background:#141414" data-c="#141414" aria-label="أسود" aria-pressed="false"></button><button class="sw" style="background:#1d3fa8" data-c="#1d3fa8" aria-label="أزرق" aria-pressed="true"></button><button class="sw" style="background:#c4302b" data-c="#c4302b" aria-label="أحمر" aria-pressed="false"></button></div><button class="btn sm" id="sig-clear">مسح</button></div>
   <div id="sig-saved-w" hidden><h3 style="font-size:14px;margin:0 0 8px">توقيعاتك المحفوظة (اضغط للإدراج)</h3><div class="sigs" id="sig-saved"></div></div>
   <div class="prow2"><button class="btn primary" id="sig-ok">حفظ وإدراج التوقيع</button><button class="btn" id="sig-cancel">إلغاء</button></div>
+</div></div>
+<div class="modal top" id="sgc" hidden><div class="mcard wide" dir="rtl">
+  <h2>قص التوقيع أو الختم</h2><p class="hint">اسحب أركان المربع ليحيط بالتوقيع فقط، واسحب من داخله لتحريكه.</p>
+  <div class="sgc-stage"><canvas id="sgc-cv" aria-label="الصورة ومربع القص"></canvas></div>
+  <div class="prow2" style="justify-content:space-between"><label class="check"><input type="checkbox" id="sgc-bg" checked>إزالة الخلفية البيضاء</label>
+    <div class="prow2"><button class="btn sm" id="sgc-auto"><i data-ic="crop" data-s="16"></i>قص تلقائي</button><button class="btn sm" id="sgc-rot"><i data-ic="rotate" data-s="16"></i>تدوير</button></div></div>
+  <div class="prow2"><button class="btn primary" id="sgc-ok">حفظ</button><button class="btn" id="sgc-cancel">إلغاء</button></div>
 </div></div>
 <div class="modal" id="busy" hidden><div class="mcard" role="status" aria-live="polite"><h2><span class="spin" aria-hidden="true"></span><span id="busy-t">جارٍ العمل…</span></h2><div class="status" id="busy-s"></div><div class="bar"><i id="busy-b"></i></div></div></div>
 <div class="modal top" id="pw" hidden><form class="mcard" id="pw-form" dir="rtl"><h2><i data-ic="lock"></i>ملف محمي بكلمة مرور</h2><p class="hint" id="pw-msg">اكتب كلمة المرور لفتح الملف.</p><input type="password" id="pw-in" autocomplete="off" aria-label="كلمة المرور"><div class="prow2"><button class="btn primary" type="submit">فتح</button><button class="btn" type="button" id="pw-cancel">إلغاء</button></div></form></div>
@@ -2540,7 +2555,7 @@ async function loadSigs(){let items=[];try{items=await Store.list('sig')}catch(_
   if(!items.length&&!Store.cloud){let old=[];try{old=JSON.parse(localStorage.getItem('waraqa.signatures.v1')||'[]')}catch(_){}
     for(const u of old){try{await Store.put('sig',{id:newId(),name:'توقيع',data:{img:u}})}catch(_){}}
     if(old.length){try{localStorage.removeItem('waraqa.signatures.v1')}catch(_){}items=await Store.list('sig').catch(()=>[])}}
-  const out=[];for(const it of items){try{const r=await Store.loadImage(it.data.img);out.push({id:it.id,url:r.url,el:r.el,ref:it.data.img})}catch(_){}}
+  const out=[];for(const it of items){try{const r=await Store.loadImage(it.data.img);out.push({id:it.id,url:r.url,el:r.el,ref:it.data.img,size:+it.data.size||100})}catch(_){}}
   SIGS=out;renderLtSigs();if(!$('#sigm').hidden)renderSigs()}
 async function addSig(dataURL){const ref=await Store.putImage(dataURL);const id=newId();await Store.put('sig',{id,name:'توقيع',data:{img:ref}});await loadSigs();return id}
 async function delSig(s){try{await Store.del('sig',s.id);if(Store.cloud&&/^file:/.test(s.ref))Store.delFile(s.ref);LTR.sigIds.delete(s.id);await loadSigs();ltPreview()}catch(_){toast('تعذّر حذف التوقيع')}}
@@ -2684,7 +2699,7 @@ function ltHTML(f,dir){const L=LBL[dir],inl=s=>escH(s).replace(/\*\*([^*]+)\*\*/
     h+=l.trim()?'<p class="lt-b">'+inl(l)+'</p>':'<div class="lt-gap"></div>';i++}
   if(tr(f.close))h+='<p class="lt-close">'+inl(tr(f.close))+'</p>';
   const sg=ltSigs();
-  if(tr(f.name)||tr(f.title)||sg.length)h+='<div class="lt-sign"><div>'+(tr(f.title)?'<p>'+escH(tr(f.title))+'</p>':'')+(tr(f.name)?'<p class="nm">'+escH(tr(f.name))+'</p>':'')+(sg.length?'<div class="sgi">'+sg.map(s=>'<img alt="" src="'+escH(s.url)+'">').join('')+'</div>':'')+'</div></div>';
+  if(tr(f.name)||tr(f.title)||sg.length)h+='<div class="lt-sign"><div>'+(tr(f.title)?'<p>'+escH(tr(f.title))+'</p>':'')+(tr(f.name)?'<p class="nm">'+escH(tr(f.name))+'</p>':'')+(sg.length?'<div class="sgi">'+sg.map(s=>{const k=(s.size||100)/100;return '<img alt="" src="'+escH(s.url)+'" style="max-height:'+Math.round(86*k)+'px;max-width:'+Math.round(190*k)+'px">'}).join('')+'</div>':'')+'</div></div>';
   if(tr(f.cc)||tr(f.att))h+='<div class="lt-foot">'+(tr(f.att)?'<p>'+L.att+escH(tr(f.att))+'</p>':'')+(tr(f.cc)?'<p>'+L.cc+escH(tr(f.cc))+'</p>':'')+'</div>';
   return h}
 async function tplCfg(id){const t=id&&TPLS.find(x=>x.id===id);if(!t)return lhCfg();const im={};
@@ -2710,10 +2725,59 @@ function renderLtSigs(){const box=$('#lt-sigs');box.innerHTML='';
   SIGS.forEach((s,i)=>{const on=LTR.sigIds.has(s.id);const d=document.createElement('button');d.type='button';d.className='sg'+(on?' on':'');d.setAttribute('aria-pressed',on?'true':'false');d.setAttribute('aria-label','التوقيع '+(i+1));
     const im=document.createElement('img');im.src=s.url;im.alt='';d.appendChild(im);
     const x=document.createElement('span');x.className='x';x.innerHTML=svg('x',12);x.title='حذف';x.onclick=ev=>{ev.stopPropagation();delSig(s)};d.appendChild(x);
-    d.onclick=()=>{on?LTR.sigIds.delete(s.id):LTR.sigIds.add(s.id);renderLtSigs();ltPreview()};box.appendChild(d)})}
+    const ed=document.createElement('span');ed.className='ed';ed.innerHTML=svg('crop',13);ed.title='قص';ed.setAttribute('role','button');ed.setAttribute('aria-label','قص التوقيع '+(i+1));ed.onclick=ev=>{ev.stopPropagation();recropSig(s)};d.appendChild(ed);
+    d.onclick=()=>{on?LTR.sigIds.delete(s.id):LTR.sigIds.add(s.id);renderLtSigs();ltPreview()};box.appendChild(d)});renderSigSizes()}
+function renderSigSizes(){const box=$('#lt-sigsz');box.innerHTML='';const sel=ltSigs();if(!sel.length)return;
+  const lab=document.createElement('span');lab.className='hint';lab.textContent='حجم التوقيع في الخطاب';box.appendChild(lab);
+  sel.forEach((s,i)=>{const r=document.createElement('div');r.className='r';const im=document.createElement('img');im.src=s.url;im.alt='';
+    const rg=document.createElement('input');rg.type='range';rg.min='40';rg.max='250';rg.step='10';rg.value=String(s.size||100);rg.setAttribute('aria-label','حجم التوقيع '+(i+1));
+    const o=document.createElement('output');o.textContent=rg.value+'%';let t;
+    rg.addEventListener('input',e=>{e.stopPropagation();s.size=+rg.value;o.textContent=rg.value+'%';ltPreview();clearTimeout(t);t=setTimeout(()=>Store.put('sig',{id:s.id,name:'توقيع',data:{img:s.ref,size:s.size}}).catch(()=>{}),500)});
+    r.append(im,rg,o);box.appendChild(r)})}
+async function recropSig(s){const u=await sgcOpen(s.el);if(!u)return;busy.open('حفظ التوقيع');
+  try{const ref=await Store.putImage(u);await Store.put('sig',{id:s.id,name:'توقيع',data:{img:ref,size:s.size||100}});if(Store.cloud&&/^file:/.test(s.ref)&&s.ref!==ref)Store.delFile(s.ref);
+    await loadSigs();busy.close();ltPreview();toast('حُفظ التوقيع بعد القص')}catch(e){busy.close();toast(e&&e.code==='quota'?'مساحة الحفظ على هذا الجهاز ممتلئة':'تعذّر حفظ التوقيع')}}
+/* signature crop dialog */
+const SGC={c:null,base:null,rot:0,r:null,drag:null,view:null,res:null};
+function sgcInk(c){const g=c.getContext('2d',{willReadFrequently:true}),d=g.getImageData(0,0,c.width,c.height).data;let x0=c.width,y0=c.height,x1=-1,y1=-1;
+  for(let y=0;y<c.height;y+=2)for(let x=0;x<c.width;x+=2){const i=(y*c.width+x)*4;if(d[i+3]>40&&(d[i]*.299+d[i+1]*.587+d[i+2]*.114)<200){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}}
+  if(x1<0)return {x:0,y:0,w:c.width,h:c.height};const p=Math.round(Math.max(c.width,c.height)*0.02);x0=Math.max(0,x0-p);y0=Math.max(0,y0-p);x1=Math.min(c.width,x1+p);y1=Math.min(c.height,y1+p);return {x:x0,y:y0,w:x1-x0,h:y1-y0}}
+function sgcSetRot(){SGC.c=scRotate(SGC.base,SGC.rot);SGC.r=sgcInk(SGC.c)}
+function sgcOpen(img){return new Promise(res=>{const w=img.naturalWidth||img.width,h=img.naturalHeight||img.height,k=Math.min(1,1400/Math.max(w,h));
+  const b=document.createElement('canvas');b.width=Math.max(1,Math.round(w*k));b.height=Math.max(1,Math.round(h*k));const g=b.getContext('2d');g.fillStyle='#ffffff';g.fillRect(0,0,b.width,b.height);g.drawImage(img,0,0,b.width,b.height);
+  SGC.base=b;SGC.rot=0;SGC.res=res;sgcSetRot();$('#sgc').hidden=false;requestAnimationFrame(sgcDraw)})}
+function sgcClose(v){$('#sgc').hidden=true;const r=SGC.res;SGC.res=null;SGC.base=SGC.c=null;r&&r(v)}
+function sgcDraw(){const cv=$('#sgc-cv'),c=SGC.c;if(!c)return;const st=cv.parentElement,avW=Math.max(200,(st.clientWidth||520)-20),avH=Math.max(220,window.innerHeight*0.5),dpr=Math.min(2,window.devicePixelRatio||1);
+  const s=Math.min(avW/c.width,avH/c.height,2),W=Math.round(c.width*s),H=Math.round(c.height*s);cv.style.width=W+'px';cv.style.height=H+'px';cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);
+  const k=s*dpr;SGC.view={s};const g=cv.getContext('2d');g.drawImage(c,0,0,cv.width,cv.height);const R=SGC.r,x=R.x*k,y=R.y*k,w=R.w*k,h=R.h*k;
+  g.fillStyle='rgba(10,14,24,.45)';g.beginPath();g.rect(0,0,cv.width,cv.height);g.rect(x,y,w,h);g.fill('evenodd');
+  g.strokeStyle='#2952cc';g.lineWidth=2*dpr;g.strokeRect(x,y,w,h);
+  sgcHandles().forEach(([hx,hy])=>{g.beginPath();g.arc(hx*k,hy*k,8*dpr,0,Math.PI*2);g.fillStyle='#ffffff';g.fill();g.lineWidth=2.5*dpr;g.strokeStyle='#2952cc';g.stroke()})}
+function sgcHandles(){const R=SGC.r,mx=R.x+R.w/2,my=R.y+R.h/2;return [[R.x,R.y],[mx,R.y],[R.x+R.w,R.y],[R.x+R.w,my],[R.x+R.w,R.y+R.h],[mx,R.y+R.h],[R.x,R.y+R.h],[R.x,my]]}
+function sgcPt(e){const r=$('#sgc-cv').getBoundingClientRect();return [(e.clientX-r.left)/SGC.view.s,(e.clientY-r.top)/SGC.view.s]}
+$('#sgc-cv').addEventListener('pointerdown',e=>{if(!SGC.c)return;const [x,y]=sgcPt(e),s=SGC.view.s;let hi=-1,bd=1e9;sgcHandles().forEach(([hx,hy],i)=>{const d=Math.hypot(hx-x,hy-y)*s;if(d<bd){bd=d;hi=i}});
+  const R=SGC.r;if(bd<=26)SGC.drag={h:hi,r0:Object.assign({},R),p:[x,y]};else if(x>R.x&&x<R.x+R.w&&y>R.y&&y<R.y+R.h)SGC.drag={h:-1,r0:Object.assign({},R),p:[x,y]};else return;
+  e.preventDefault();try{e.target.setPointerCapture(e.pointerId)}catch(_){}});
+$('#sgc-cv').addEventListener('pointermove',e=>{const D=SGC.drag;if(!D)return;const [x,y]=sgcPt(e),dx=x-D.p[0],dy=y-D.p[1],r0=D.r0,C=SGC.c,MIN=12;let {x:X,y:Y,w:W,h:H}=r0;
+  if(D.h<0){X=Math.min(C.width-W,Math.max(0,X+dx));Y=Math.min(C.height-H,Math.max(0,Y+dy))}
+  else{let l=r0.x,t=r0.y,r=r0.x+r0.w,b=r0.y+r0.h;const h=D.h;
+    if(h===0||h===6||h===7)l=Math.min(r-MIN,Math.max(0,l+dx));if(h===2||h===3||h===4)r=Math.max(l+MIN,Math.min(C.width,r+dx));
+    if(h===0||h===1||h===2)t=Math.min(b-MIN,Math.max(0,t+dy));if(h===4||h===5||h===6)b=Math.max(t+MIN,Math.min(C.height,b+dy));X=l;Y=t;W=r-l;H=b-t}
+  SGC.r={x:X,y:Y,w:W,h:H};sgcDraw()});
+['pointerup','pointercancel'].forEach(ev=>$('#sgc-cv').addEventListener(ev,()=>{SGC.drag=null}));
+$('#sgc-auto').addEventListener('click',()=>{if(!SGC.c)return;SGC.r=sgcInk(SGC.c);sgcDraw()});
+$('#sgc-rot').addEventListener('click',()=>{if(!SGC.base)return;SGC.rot=(SGC.rot+90)%360;sgcSetRot();sgcDraw()});
+$('#sgc-cancel').addEventListener('click',()=>sgcClose(null));
+$('#sgc-ok').addEventListener('click',()=>{const C=SGC.c,R=SGC.r;if(!C)return;const w=Math.max(1,Math.round(R.w)),h=Math.max(1,Math.round(R.h)),k=Math.min(1,900/Math.max(w,h));
+  let o=document.createElement('canvas');o.width=Math.max(1,Math.round(w*k));o.height=Math.max(1,Math.round(h*k));const g=o.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(C,Math.round(R.x),Math.round(R.y),w,h,0,0,o.width,o.height);
+  if($('#sgc-bg').checked){const d=g.getImageData(0,0,o.width,o.height),a=d.data;for(let i=0;i<a.length;i+=4){const l=a[i]*.299+a[i+1]*.587+a[i+2]*.114;let al=(232-l)/(232-160);al=al<0?0:al>1?1:al;
+      a[i+3]=Math.round(a[i+3]*al);if(al>0&&al<1){const f=1/Math.max(al,.35);a[i]=Math.max(0,255-(255-a[i])*f);a[i+1]=Math.max(0,255-(255-a[i+1])*f);a[i+2]=Math.max(0,255-(255-a[i+2])*f)}}
+    g.putImageData(d,0,0);o=trimCanvas(o)||o}
+  sgcClose(o.toDataURL('image/png'))});
+window.addEventListener('resize',()=>{if(!$('#sgc').hidden)sgcDraw()});
 $('#lt-newsig').addEventListener('click',()=>sigOpen('letter'));
 $('#lt-sigimg').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
-  try{const r=await imgFromFile(f,900);const id=await addSig(r.url);LTR.sigIds.add(id);renderLtSigs();ltPreview()}catch(err){toast(err&&err.code==='quota'?'مساحة الحفظ على هذا الجهاز ممتلئة':'تعذّر إضافة الصورة')}});
+  try{const src=await getSrc(f);const c=drawSrc(src,{scale:Math.min(1,1400/Math.max(src.w,src.h)),bg:'#ffffff'});const u=await sgcOpen(c);if(!u)return;const id=await addSig(u);LTR.sigIds.add(id);renderLtSigs();ltPreview()}catch(err){toast(err&&err.code==='quota'?'مساحة الحفظ على هذا الجهاز ممتلئة':'تعذّر إضافة الصورة')}});
 function renderSavedLetters(){const box=$('#lt-saved');box.innerHTML='';$('#lt-saved-c').hidden=!LETTERS.length;
   LETTERS.forEach(it=>{const r=document.createElement('div');r.className='saved-row';const m=document.createElement('div');m.style.minWidth='0';
     const b=document.createElement('b');b.textContent=(it.id===LTR.curId?'● ':'')+(it.name||'خطاب');const sm=document.createElement('small');
@@ -2763,7 +2827,7 @@ async function docxLetter(f,dir,hdr,ftr,sigs){
   if(tr(f.title))body+=T(tr(f.title),{jc:'right',after:0});
   if(tr(f.name))body+=T(tr(f.name),{jc:'right',b:true,after:60});
   if(sigs.length){let inner='';sigs.forEach(s=>{n++;const id='rIdS'+n;z.file('word/media/sig'+n+'.png',s.blob);rels.push('<Relationship Id="'+id+'" Type="'+REL+'image" Target="media/sig'+n+'.png"/>');
-    let h=Math.min(86,s.h),w=s.w*h/s.h;if(w>190){w=190;h=w*s.h/s.w}inner+=drawing(id,Math.round(w*9525),Math.round(h*9525),100+n)+run('   ')});body+=P(inner,{jc:'right'})}
+    const kk=(s.size||100)/100;let h=Math.min(86*kk,s.h),w=s.w*h/s.h;if(w>190*kk){w=190*kk;h=w*s.h/s.w}inner+=drawing(id,Math.round(w*9525),Math.round(h*9525),100+n)+run('   ')});body+=P(inner,{jc:'right'})}
   if(tr(f.att))body+=P('',{after:120})+T(L.att+tr(f.att),{sz:sm(.875),after:0});
   if(tr(f.cc))body+=T(L.cc+tr(f.cc),{sz:sm(.875),after:0});
   const PAGE_EMU=7560000;let refs='',ct='',top=1134,bottom=1134;
@@ -2784,7 +2848,7 @@ $('#b-lt-docx').addEventListener('click',async()=>{const f=ltFields();if(!ltRead
   try{const c=await tplCfg(LTR.tplId),b=ltBox(c);const s=2600/b.H;const cv=document.createElement('canvas');cv.width=Math.round(b.W*s);cv.height=Math.round(b.H*s);drawLH(cv.getContext('2d'),s,b.W,b.H,c,b.L);
     const crop=async(y0,h)=>{if(!(h>0))return null;const t=document.createElement('canvas');t.width=cv.width;t.height=Math.max(1,Math.round(h*s));t.getContext('2d').drawImage(cv,0,Math.round(y0*s),cv.width,t.height,0,0,t.width,t.height);return {blob:await canvasBlob(t,'image/png'),w:t.width,h:t.height}};
     const hdr=await crop(0,b.L.headerH),ftr=await crop(b.H-b.L.footerH,b.L.footerH);
-    const sigs=[];for(const sg of ltSigs()){const t=document.createElement('canvas');t.width=sg.el.naturalWidth||sg.el.width;t.height=sg.el.naturalHeight||sg.el.height;t.getContext('2d').drawImage(sg.el,0,0);sigs.push({blob:await canvasBlob(t,'image/png'),w:t.width,h:t.height})}
+    const sigs=[];for(const sg of ltSigs()){const t=document.createElement('canvas');t.width=sg.el.naturalWidth||sg.el.width;t.height=sg.el.naturalHeight||sg.el.height;t.getContext('2d').drawImage(sg.el,0,0);sigs.push({blob:await canvasBlob(t,'image/png'),w:t.width,h:t.height,size:sg.size})}
     const blob=await docxLetter(f,ltDir(f),hdr,ftr,sigs);busy.close();await deliver('letter',ltFileName(f)+'.docx',blob);
   }catch(e){busy.close();console.error(e);toast('تعذّر إنشاء ملف Word')}});
 
