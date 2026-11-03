@@ -345,11 +345,11 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .ltc{font-family:"IBM Plex Sans Arabic","Segoe UI",Tahoma,Arial,sans-serif;font-size:16px;line-height:1.9;color:#111111;background:#ffffff}
 .ltc>*{margin:0 0 8px}
 .ltc p{margin:0}
-.ltc .lt-meta{display:flex;flex-direction:column;align-items:flex-end;font-size:14px;color:#333333;margin-bottom:18px}
+.ltc .lt-meta{display:flex;flex-direction:column;align-items:flex-end;font-size:.875em;color:#333333;margin-bottom:18px}
 .ltc .lt-to{font-weight:700;margin-bottom:14px}
 .ltc .lt-subj{text-align:center;font-weight:700;text-decoration:underline;text-underline-offset:6px;margin:6px 0 16px}
 .ltc .lt-b{text-align:justify}
-.ltc .lt-gap{height:14px;margin:0}
+.ltc .lt-gap{height:.875em;margin:0}
 .ltc ul{margin:0 0 6px;padding-inline-start:24px}
 .ltc .lt-close{margin-top:16px}
 .ltc .lt-sign{display:flex;flex-direction:column;align-items:flex-end;margin-top:20px}
@@ -357,7 +357,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .ltc .lt-sign .nm{font-weight:700}
 .ltc .lt-sign .sgi{display:flex;gap:14px;align-items:center;justify-content:center;margin-top:6px}
 .ltc .lt-sign img{max-height:86px;max-width:190px}
-.ltc .lt-foot{font-size:13px;color:#444444;margin-top:22px}
+.ltc .lt-foot{font-size:.8125em;color:#444444;margin-top:22px}
 .saved-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--surface)}
 .saved-row b{display:block;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .saved-row small{color:var(--muted);font-size:12px}
@@ -753,6 +753,9 @@ input[type=range]{width:100%;accent-color:var(--accent)}
         <div class="field"><span class="lab">التوقيع والختم (اختر واحداً أو أكثر)</span><div class="sigs" id="lt-sigs"></div>
           <div class="prow2"><button class="btn sm" id="lt-newsig"><i data-ic="sign" data-s="16"></i>رسم توقيع</button><label class="btn sm" for="lt-sigimg"><i data-ic="image" data-s="16"></i>صورة ختم أو توقيع</label><input type="file" id="lt-sigimg" class="vh" accept="image/*,.heic,.heif"></div></div>
         <div class="fields"><div class="field"><label for="lt-cc">نسخة إلى</label><input type="text" id="lt-cc" placeholder="اختياري"></div><div class="field"><label for="lt-att">المرفقات</label><input type="text" id="lt-att" placeholder="اختياري"></div></div>
+        <div class="fields"><div class="field"><label for="lt-font">نوع الخط</label><select id="lt-font"><option value="plex">IBM Plex (حديث)</option><option value="amiri">أميري (رسمي تقليدي)</option><option value="naskh">نسخ</option><option value="tajawal">تجوال (عصري)</option><option value="cairo">القاهرة (عريض وواضح)</option></select></div>
+          <div class="field"><label for="lt-size">حجم الخط</label><select id="lt-size"><option value="11">11</option><option value="12" selected>12</option><option value="13">13</option><option value="14">14</option><option value="16">16</option><option value="18">18</option></select></div>
+          <p class="hint" id="lt-font-hint" style="grid-column:1/-1;margin:0"></p></div>
         <div class="field"><label for="lt-dir">لغة الخطاب</label><select id="lt-dir"><option value="auto">تلقائي</option><option value="rtl">عربي</option><option value="ltr">English</option></select></div>
         <div class="cta"><button class="btn primary block" id="b-lt-pdf" data-primary><i data-ic="download"></i>حفظ PDF</button>
           <div class="prow2"><button class="btn" id="b-lt-docx"><i data-ic="word" data-s="18"></i>حفظ Word</button><button class="btn" id="b-lt-save">حفظ المسودة</button><button class="btn ghost" id="b-lt-new">خطاب جديد</button></div></div></div>
@@ -2659,11 +2662,15 @@ $('#tpl-del').addEventListener('click',async()=>{const cur=TPLS.find(t=>t.id===L
 /* ---------- letter writer ---------- */
 const LTR={tplId:null,sigIds:new Set(),curId:null};
 const today=()=>{const d=new Date();return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear()};
-const LT_FIELDS=['date','ref','to','subject','greet','body','close','name','title','cc','att','dir'];
+const LT_FIELDS=['date','ref','to','subject','greet','body','close','name','title','cc','att','dir','font','size'];
+const LT_FONTS={plex:{css:'"IBM Plex Sans Arabic","Segoe UI",Tahoma,Arial,sans-serif',w:'Arial'},amiri:{css:'"Amiri","Traditional Arabic",serif',w:'Traditional Arabic'},naskh:{css:'"Noto Naskh Arabic","Simplified Arabic",serif',w:'Simplified Arabic'},tajawal:{css:'"Tajawal","IBM Plex Sans Arabic",sans-serif',w:'Tahoma'},cairo:{css:'"Cairo","IBM Plex Sans Arabic",sans-serif',w:'Segoe UI'}};
+const ltFont=f=>LT_FONTS[f.font]||LT_FONTS.plex;const ltPt=f=>Math.min(24,Math.max(9,+f.size||12));
+function ltApply(el,f){el.style.fontFamily=ltFont(f).css;el.style.fontSize=(ltPt(f)*PX).toFixed(2)+'px';el.style.lineHeight=f.font==='amiri'||f.font==='naskh'?'2':'1.9'}
+async function ltFontReady(f){await cvFonts();try{const fam=ltFont(f).css.split(',')[0];if(document.fonts&&document.fonts.load)await Promise.race([Promise.all([document.fonts.load('400 16px '+fam,'عربي Aa'),document.fonts.load('700 16px '+fam,'عربي Aa')]),sleep(2500)])}catch(_){}}
 const LT_DEF={greet:'السلام عليكم ورحمة الله وبركاته،',close:'وتفضلوا بقبول فائق الاحترام والتقدير،'};
 function ltFields(){const f={};LT_FIELDS.forEach(k=>{f[k]=$('#lt-'+k).value});return f}
 function ltSetFields(f){LT_FIELDS.forEach(k=>{if(f[k]!=null)$('#lt-'+k).value=f[k]})}
-function ltNew(){ltSetFields({date:today(),ref:'',to:'',subject:'',greet:LT_DEF.greet,body:'',close:LT_DEF.close,cc:'',att:'',dir:'auto'});LTR.curId=null;renderSavedLetters();ltPreview()}
+function ltNew(){ltSetFields({date:today(),ref:'',to:'',subject:'',greet:LT_DEF.greet,body:'',close:LT_DEF.close,cc:'',att:'',dir:'auto',font:$('#lt-font').value,size:$('#lt-size').value});LTR.curId=null;renderSavedLetters();ltPreview()}
 function ltDir(f){if(f.dir==='rtl'||f.dir==='ltr')return f.dir;const t=(f.body+' '+f.subject+' '+f.to).trim();return !t||AR.test(t)?'rtl':'ltr'}
 const LBL={rtl:{date:'التاريخ: ',ref:'الرقم: ',subj:'الموضوع: ',cc:'نسخة إلى: ',att:'المرفقات: '},ltr:{date:'Date: ',ref:'Ref: ',subj:'Subject: ',cc:'CC: ',att:'Attachments: '}};
 const ltSigs=()=>[...LTR.sigIds].map(id=>SIGS.find(s=>s.id===id)).filter(Boolean);
@@ -2688,11 +2695,11 @@ const PX=96/72;
 let ltT;function ltPreview(){clearTimeout(ltT);ltT=setTimeout(ltPreviewNow,120)}
 async function ltPreviewNow(){if(current!=='letter')return;const c=await tplCfg(LTR.tplId),b=ltBox(c);
   const cv=$('#lt-bg');cv.width=1588;cv.height=2246;const g=cv.getContext('2d');g.clearRect(0,0,cv.width,cv.height);drawLH(g,cv.width/b.W,b.W,b.H,c,b.L);
-  const f=ltFields(),dir=ltDir(f),ct=$('#lt-content');ct.dir=dir;Object.assign(ct.style,{left:b.x*PX+'px',top:b.y*PX+'px',width:b.w*PX+'px',height:b.h*PX+'px'});ct.innerHTML=ltHTML(f,dir);
+  const f=ltFields(),dir=ltDir(f),ct=$('#lt-content');ct.dir=dir;ltApply(ct,f);$('#lt-font-hint').textContent='في ملف Word يُستخدم خط '+ltFont(f).w+' بحجم '+ltPt(f)+'.';Object.assign(ct.style,{left:b.x*PX+'px',top:b.y*PX+'px',width:b.w*PX+'px',height:b.h*PX+'px'});ct.innerHTML=ltHTML(f,dir);
   const n=Math.max(1,Math.ceil((ct.scrollHeight-4)/(b.h*PX)));$('#lt-pages').textContent=n===1?'صفحة واحدة':(n===2?'صفحتان':n+' صفحات')+'. المعاينة تعرض الصفحة الأولى.';ltScale();
   if((f.body.trim()||f.subject.trim())&&(stepState.letter||1)<2)setStep('letter',2)}
 function ltScale(){const w=$('#lt-wrap');const s=Math.min(1,(w.clientWidth||560)/794);$('#lt-stage').style.transform='scale('+s+')';w.style.height=Math.round(1123*s)+'px'}
-function ltOpen(){renderTplSelect();if(!$('#lt-date').value)$('#lt-date').value=today();renderLtSigs();renderSavedLetters();ltPreview();requestAnimationFrame(ltScale)}
+function ltOpen(){cvFonts().then(()=>ltPreview());renderTplSelect();if(!$('#lt-date').value)$('#lt-date').value=today();renderLtSigs();renderSavedLetters();ltPreview();requestAnimationFrame(ltScale)}
 window.addEventListener('resize',()=>{if(current==='letter')ltScale()});
 ['input','change'].forEach(ev=>$('[data-panel="letter"] aside').addEventListener(ev,e=>{if(e.target.id!=='lt-sigimg')ltPreview()}));
 $('#lt-tpl').addEventListener('change',e=>{LTR.tplId=e.target.value;ltPreview()});
@@ -2714,7 +2721,7 @@ function renderSavedLetters(){const box=$('#lt-saved');box.innerHTML='';$('#lt-s
     const bs=document.createElement('div');bs.className='prow2';const o=document.createElement('button');o.className='btn sm';o.textContent='فتح';o.onclick=()=>ltLoad(it);
     bs.append(o,iconBtn('trash','حذف الخطاب',async()=>{try{await Store.del('letter',it.id);if(LTR.curId===it.id)LTR.curId=null;LETTERS=await Store.list('letter');renderSavedLetters()}catch(_){toast('تعذّر الحذف')}},'danger'));
     r.append(m,bs);box.appendChild(r)})}
-function ltLoad(it){const d=it.data||{};ltSetFields(Object.assign({date:'',ref:'',to:'',subject:'',greet:'',body:'',close:'',name:'',title:'',cc:'',att:'',dir:'auto'},d.fields||{}));
+function ltLoad(it){const d=it.data||{};ltSetFields(Object.assign({date:'',ref:'',to:'',subject:'',greet:'',body:'',close:'',name:'',title:'',cc:'',att:'',dir:'auto',font:'plex',size:'12'},d.fields||{}));
   LTR.tplId=d.tplId||'';LTR.sigIds=new Set(d.sigIds||[]);LTR.curId=it.id;renderTplSelect();renderLtSigs();renderSavedLetters();ltPreview();window.scrollTo({top:0,behavior:'smooth'});toast('فُتح الخطاب «'+(it.name||'')+'»')}
 $('#b-lt-save').addEventListener('click',async()=>{const f=ltFields();const id=LTR.curId||newId();const name=(f.subject.trim()||f.to.split('\n')[0].trim()||'خطاب '+f.date).slice(0,80);
   try{await Store.put('letter',{id,name,data:{fields:f,tplId:LTR.tplId,sigIds:[...LTR.sigIds]}});LTR.curId=id;LETTERS=await Store.list('letter');renderSavedLetters();toast(Store.cloud?'حُفظ الخطاب في حسابك':'حُفظ الخطاب على هذا الجهاز')}
@@ -2725,9 +2732,9 @@ const waitImgs=el=>Promise.all([...el.querySelectorAll('img')].map(i=>i.complete
 function ltReady(f){if(!f.body.trim()&&!f.subject.trim()){toast('اكتب الموضوع أو نص الخطاب أولاً');return false}return true}
 $('#b-lt-pdf').addEventListener('click',async()=>{const f=ltFields();if(!ltReady(f))return;busy.open('تجهيز الخطاب');
   try{const c=await tplCfg(LTR.tplId),b=ltBox(c),dir=ltDir(f);const h2c=await lib('h2c');const host=$('#render-host');
-    try{if(document.fonts&&document.fonts.load)await Promise.race([document.fonts.load('600 16px "IBM Plex Sans Arabic"'),sleep(2000)])}catch(_){}
+    await ltFontReady(f);
     const wpx=b.w*PX,hpx=b.h*PX;const holder=document.createElement('div');holder.innerHTML=ltHTML(f,dir);
-    const mk=()=>{const d=document.createElement('div');d.className='ltc';d.dir=dir;d.style.cssText='position:relative;width:'+wpx+'px;height:'+hpx+'px;overflow:hidden';return d};
+    const mk=()=>{const d=document.createElement('div');d.className='ltc';d.dir=dir;d.style.cssText='position:relative;width:'+wpx+'px;height:'+hpx+'px;overflow:hidden';ltApply(d,f);return d};
     const pages=paginateWith([...holder.children],mk,hpx,host);
     const out=await PDFLib.PDFDocument.create();const s=Math.min(3.2,2600/b.H);const cv=document.createElement('canvas');cv.width=Math.round(b.W*s);cv.height=Math.round(b.H*s);drawLH(cv.getContext('2d'),s,b.W,b.H,c,b.L);
     const lhIm=await out.embedPng(await (await canvasBlob(cv,'image/png')).arrayBuffer());cv.width=cv.height=0;
@@ -2737,16 +2744,16 @@ $('#b-lt-pdf').addEventListener('click',async()=>{const f=ltFields();if(!ltReady
     host.replaceChildren();busy.close();await deliver('letter',ltFileName(f)+'.pdf',new Blob([await out.save()],{type:'application/pdf'}),pages.length+' صفحة');
   }catch(e){busy.close();if(e&&e.lib)pdfErr(e);else{console.error(e);toast('تعذّر إنشاء الخطاب')}}});
 async function docxLetter(f,dir,hdr,ftr,sigs){
-  const z=new JSZip(),rels=[],rtl=dir==='rtl',L=LBL[dir];let n=0;
+  const z=new JSZip(),rels=[],rtl=dir==='rtl',L=LBL[dir];let n=0;const FN=xmlEsc(ltFont(f).w),SZ=ltPt(f)*2,sm=k=>Math.round(SZ*k);
   const NS='xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"';
   const REL='http://schemas.openxmlformats.org/officeDocument/2006/relationships/';
   const drawing=(rid,cx,cy,id)=>'<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="'+cx+'" cy="'+cy+'"/><wp:docPr id="'+id+'" name="Picture '+id+'"/><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="'+id+'" name="Picture '+id+'"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="'+rid+'"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="'+cx+'" cy="'+cy+'"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>';
-  const run=(t,o={})=>'<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>'+(o.b?'<w:b/><w:bCs/>':'')+'<w:sz w:val="'+(o.sz||24)+'"/><w:szCs w:val="'+(o.sz||24)+'"/>'+(o.u?'<w:u w:val="single"/>':'')+(rtl?'<w:rtl/>':'')+'</w:rPr><w:t xml:space="preserve">'+xmlEsc(t)+'</w:t></w:r>';
+  const run=(t,o={})=>'<w:r><w:rPr><w:rFonts w:ascii="'+FN+'" w:hAnsi="'+FN+'" w:cs="'+FN+'"/>'+(o.b?'<w:b/><w:bCs/>':'')+'<w:sz w:val="'+(o.sz||SZ)+'"/><w:szCs w:val="'+(o.sz||SZ)+'"/>'+(o.u?'<w:u w:val="single"/>':'')+(rtl?'<w:rtl/>':'')+'</w:rPr><w:t xml:space="preserve">'+xmlEsc(t)+'</w:t></w:r>';
   const runs=(t,o={})=>t.split(/(\*\*[^*]+\*\*)/).filter(Boolean).map(p=>/^\*\*[^*]+\*\*$/.test(p)?run(p.slice(2,-2),Object.assign({},o,{b:true})):run(p,o)).join('');
   const P=(inner,o={})=>'<w:p><w:pPr>'+(rtl?'<w:bidi/>':'')+'<w:spacing w:before="0" w:after="'+(o.after==null?80:o.after)+'" w:line="336" w:lineRule="auto"/>'+(o.jc?'<w:jc w:val="'+o.jc+'"/>':'')+'</w:pPr>'+inner+'</w:p>';
   const T=(t,o={})=>P(runs(t,o),o);const tr=s=>(s||'').trim();let body='';
-  if(tr(f.date))body+=T(L.date+tr(f.date),{jc:'right',sz:22,after:0});
-  if(tr(f.ref))body+=T(L.ref+tr(f.ref),{jc:'right',sz:22,after:0});
+  if(tr(f.date))body+=T(L.date+tr(f.date),{jc:'right',sz:sm(.9),after:0});
+  if(tr(f.ref))body+=T(L.ref+tr(f.ref),{jc:'right',sz:sm(.9),after:0});
   if(tr(f.date)||tr(f.ref))body+=P('',{after:200});
   const to=f.to.split('\n').map(s=>s.trim()).filter(Boolean);to.forEach(s=>{body+=T(s,{b:true,after:0})});if(to.length)body+=P('',{after:160});
   if(tr(f.subject))body+=T(L.subj+tr(f.subject),{b:true,u:true,jc:'center',after:240});
@@ -2757,8 +2764,8 @@ async function docxLetter(f,dir,hdr,ftr,sigs){
   if(tr(f.name))body+=T(tr(f.name),{jc:'right',b:true,after:60});
   if(sigs.length){let inner='';sigs.forEach(s=>{n++;const id='rIdS'+n;z.file('word/media/sig'+n+'.png',s.blob);rels.push('<Relationship Id="'+id+'" Type="'+REL+'image" Target="media/sig'+n+'.png"/>');
     let h=Math.min(86,s.h),w=s.w*h/s.h;if(w>190){w=190;h=w*s.h/s.w}inner+=drawing(id,Math.round(w*9525),Math.round(h*9525),100+n)+run('   ')});body+=P(inner,{jc:'right'})}
-  if(tr(f.att))body+=P('',{after:120})+T(L.att+tr(f.att),{sz:21,after:0});
-  if(tr(f.cc))body+=T(L.cc+tr(f.cc),{sz:21,after:0});
+  if(tr(f.att))body+=P('',{after:120})+T(L.att+tr(f.att),{sz:sm(.875),after:0});
+  if(tr(f.cc))body+=T(L.cc+tr(f.cc),{sz:sm(.875),after:0});
   const PAGE_EMU=7560000;let refs='',ct='',top=1134,bottom=1134;
   const part=(kind,img)=>{const tag=kind==='header'?'hdr':'ftr',name=kind+'1.xml',cy=Math.round(PAGE_EMU*img.h/img.w);z.file('word/media/'+kind+'.png',img.blob);
     z.file('word/_rels/'+name+'.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdImg" Type="'+REL+'image" Target="media/'+kind+'.png"/></Relationships>');
@@ -3004,7 +3011,7 @@ function cvBreaks(el){const R=el.getBoundingClientRect(),s=R.height/(el.offsetHe
     const tgt=pos+room-BOT;let y=tgt,ch=true;while(ch){ch=false;for(const [a,b] of bl)if(a<y-1&&b>y+1&&a>pos+40){y=a-4;ch=true}}
     if(y<tgt-340)y=tgt;out.push([pos,y]);pos=y}
   return out}
-function cvFonts(){if(!cvFontsP){cvFontsP=new Promise(res=>{const l=document.createElement('link');l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Noto+Naskh+Arabic:wght@400;600;700&display=swap';l.onload=l.onerror=()=>res();document.head.appendChild(l);setTimeout(res,3000)})}return cvFontsP}
+function cvFonts(){if(!cvFontsP){cvFontsP=new Promise(res=>{const l=document.createElement('link');l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Noto+Naskh+Arabic:wght@400;600;700&family=Amiri:wght@400;700&family=Cairo:wght@400;600;700&display=swap';l.onload=l.onerror=()=>res();document.head.appendChild(l);setTimeout(res,3000)})}return cvFontsP}
 async function cvFontReady(){await cvFonts();try{const fam=(CV_FONTS[CVD.font]||'').split(',')[0];if(document.fonts&&document.fonts.load)await Promise.race([Promise.all([document.fonts.load('400 14px '+fam,'عربي Aa'),document.fonts.load('700 14px '+fam,'عربي Aa')]),sleep(2500)])}catch(_){}}
 let cvT,cvSaveT;
 function cvChanged(){CVD.sample=false;if((stepState.cv||1)<2)setStep('cv',2);$('#cv-chip').hidden=true;clearTimeout(cvSaveT);cvSaveT=setTimeout(()=>{try{localStorage.setItem(CV_KEY,JSON.stringify(CVD))}catch(_){try{const d=Object.assign({},CVD,{photo:''});localStorage.setItem(CV_KEY,JSON.stringify(d))}catch(_){}}},400);cvPreview()}
