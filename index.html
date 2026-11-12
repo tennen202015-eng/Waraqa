@@ -355,16 +355,36 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .ltc p{margin:0}
 .ltc .lt-meta{display:flex;flex-direction:column;align-items:flex-end;font-size:.875em;color:#333333;margin-bottom:18px}
 .ltc .lt-to{font-weight:700;margin-bottom:14px}
-.ltc .lt-subj{text-align:center;font-weight:700;text-decoration:underline;text-underline-offset:6px;margin:6px 0 16px}
+.ltc .lt-subj{text-align:center;font-weight:700;margin:6px 0 16px}
+.ltc .lt-subj .u{display:inline-block;border-bottom:1.5px solid currentColor;padding-bottom:1px;line-height:1.6}
 .ltc .lt-b{text-align:justify}
 .ltc .lt-gap{height:.875em;margin:0}
-.ltc ul{margin:0 0 6px;padding-inline-start:24px}
+.ltc ul{margin:0 0 6px;padding:0;list-style:none}
+.ltc li{position:relative;padding-inline-start:22px}
+.ltc li::before{content:"";position:absolute;inset-inline-start:7px;top:.8em;width:6px;height:6px;border-radius:50%;background:currentColor}
 .ltc .lt-close{margin-top:16px}
 .ltc .lt-sign{display:flex;flex-direction:column;align-items:flex-end;margin-top:20px}
 .ltc .lt-sign>div{display:flex;flex-direction:column;align-items:center;text-align:center;min-width:180px}
 .ltc .lt-sign .nm{font-weight:700}
 .ltc .lt-sign .sgi{display:flex;gap:14px;align-items:center;justify-content:center;margin-top:6px}
 .ltc .lt-sign img{max-height:86px;max-width:190px}
+.ltc>.lt-bi{display:grid;grid-template-columns:1fr 1fr;margin:0}
+.ltc .lt-bi>.ar{border-left:1px solid #d5d9e0;padding:0 0 8px 14px}
+.ltc .lt-bi>.en{padding:0 14px 8px 0;text-align:left}
+.ltc .lt-bi .lt-b{text-align:start}
+.ltc .lt-bi.lt-meta2{font-size:.875em;color:#333333}
+.ltc .lt-bi.lt-meta2>div{padding-bottom:4px}
+.ltc .lt-bi.lt-meta2+.lt-bi:not(.lt-meta2)>div{padding-top:12px}
+.ltc .lt-bi .lt-subj{margin:2px 0 6px}
+.ltc .lt-bi .lt-close{margin-top:6px}
+.ltc .lt-bi .lt-sign{margin-top:8px;align-items:center}
+.ltc .lt-bi .lt-sign>div{min-width:0}
+.ltc .lt-sigrow{display:flex;gap:14px;justify-content:center;align-items:center;margin:4px 0 8px}
+.ltc .lt-sigrow img{max-height:86px;max-width:190px}
+.lt-sz{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
+.lt-sz .field input{text-align:center}
+details.lt-more{border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+details.lt-more summary{cursor:pointer;font-weight:600;font-size:14px}
 .ltc .lt-foot{font-size:.8125em;color:#444444;margin-top:22px}
 .saved-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--surface)}
 .saved-row b{display:block;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -751,6 +771,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
         <div class="card" id="lt-saved-c" hidden><h3>خطاباتك المحفوظة</h3><div class="olist" id="lt-saved"></div><p class="where" id="lt-where"></p></div>
       </div>
       <aside class="side"><div class="card"><h3>بيانات الخطاب</h3>
+        <div class="field"><label for="lt-dir">لغة الخطاب</label><select id="lt-dir"><option value="auto">تلقائي</option><option value="rtl">عربي</option><option value="ltr">English</option><option value="bi">عربي وإنجليزي (العربي يمين والإنجليزي يسار)</option></select></div>
         <div class="fields"><div class="field"><label for="lt-date">التاريخ</label><input type="text" id="lt-date"></div><div class="field"><label for="lt-ref">رقم الخطاب</label><input type="text" id="lt-ref" placeholder="اختياري"></div></div>
         <div class="field"><label for="lt-to">إلى</label><textarea id="lt-to" rows="2" placeholder="السادة / ...&#10;المحترمين"></textarea></div>
         <div class="field"><label for="lt-subject">الموضوع</label><input type="text" id="lt-subject"></div>
@@ -758,14 +779,29 @@ input[type=range]{width:100%;accent-color:var(--accent)}
         <div class="field"><label for="lt-body">نص الخطاب</label><textarea id="lt-body" rows="9" placeholder="اكتب نص الخطاب هنا"></textarea><span class="hint">للكلام العريض ضعه بين **نجمتين**، ولعمل قائمة ابدأ السطر بـ «- ».</span></div>
         <div class="field"><label for="lt-close">الختام</label><input type="text" id="lt-close" value="وتفضلوا بقبول فائق الاحترام والتقدير،"></div>
         <div class="fields"><div class="field"><label for="lt-name">الاسم</label><input type="text" id="lt-name"></div><div class="field"><label for="lt-title">الصفة</label><input type="text" id="lt-title" placeholder="المدير العام"></div></div>
+        <div class="card" id="lt-en" hidden style="background:var(--surface-2)"><h3>النص الإنجليزي (النصف الأيسر)</h3><p class="hint" style="margin:0">كل فقرة إنجليزية تظهر أمام الفقرة العربية المقابلة لها. افصل بين الفقرات بسطر فارغ.</p>
+          <div class="field"><label for="lt-to_en">To</label><textarea id="lt-to_en" dir="ltr" rows="2" placeholder="Messrs. ..."></textarea></div>
+          <div class="field"><label for="lt-subject_en">Subject</label><input type="text" id="lt-subject_en" dir="ltr"></div>
+          <div class="field"><label for="lt-greet_en">Greeting</label><input type="text" id="lt-greet_en" dir="ltr" value="Dear Sir/Madam,"></div>
+          <div class="field"><label for="lt-body_en">Body</label><textarea id="lt-body_en" dir="ltr" rows="9" placeholder="Write the English text here"></textarea></div>
+          <div class="field"><label for="lt-close_en">Closing</label><input type="text" id="lt-close_en" dir="ltr" value="Yours sincerely,"></div>
+          <div class="fields"><div class="field"><label for="lt-name_en">Name</label><input type="text" id="lt-name_en" dir="ltr"></div><div class="field"><label for="lt-title_en">Title</label><input type="text" id="lt-title_en" dir="ltr" placeholder="General Manager"></div></div></div>
         <div class="field"><span class="lab">التوقيع والختم (اختر واحداً أو أكثر)</span><div class="sigs" id="lt-sigs"></div><div class="sgsz" id="lt-sigsz"></div>
           <div class="prow2"><button class="btn sm" id="lt-newsig"><i data-ic="sign" data-s="16"></i>رسم توقيع</button><label class="btn sm" for="lt-sigimg"><i data-ic="image" data-s="16"></i>صورة ختم أو توقيع</label><input type="file" id="lt-sigimg" class="vh" accept="image/*,.heic,.heif"></div></div>
         <div class="fields"><div class="field"><label for="lt-cc">نسخة إلى</label><input type="text" id="lt-cc" placeholder="اختياري"></div><div class="field"><label for="lt-att">المرفقات</label><input type="text" id="lt-att" placeholder="اختياري"></div></div>
         <div class="fields"><div class="field"><label for="lt-font">نوع الخط</label><select id="lt-font"><option value="plex">IBM Plex (حديث)</option><option value="amiri">أميري (رسمي تقليدي)</option><option value="naskh">نسخ</option><option value="tajawal">تجوال (عصري)</option><option value="cairo">القاهرة (عريض وواضح)</option></select></div>
-          <div class="field"><label for="lt-size">حجم الخط</label><select id="lt-size"><option value="11">11</option><option value="12" selected>12</option><option value="13">13</option><option value="14">14</option><option value="16">16</option><option value="18">18</option></select></div>
+          <div class="field"><label for="lt-size">حجم الخط (نقطة)</label><input type="number" id="lt-size" value="12" min="6" max="48" step="0.5" inputmode="decimal"></div>
           <p class="hint" id="lt-font-hint" style="grid-column:1/-1;margin:0"></p></div>
-        <div class="field"><label for="lt-dir">لغة الخطاب</label><select id="lt-dir"><option value="auto">تلقائي</option><option value="rtl">عربي</option><option value="ltr">English</option></select></div>
-        <div class="cta"><button class="btn primary block" id="b-lt-pdf" data-primary><i data-ic="download"></i>حفظ PDF</button>
+        <details class="lt-more"><summary>حجم كل جزء على حدة</summary><p class="hint" style="margin:6px 0 0">اترك الخانة فارغة ليتبع حجم النص تلقائياً.</p>
+          <div class="lt-sz">
+            <div class="field"><label for="lt-sz_meta">التاريخ والرقم</label><input type="number" id="lt-sz_meta" min="6" max="48" step="0.5" inputmode="decimal"></div>
+            <div class="field"><label for="lt-sz_to">المرسل إليه</label><input type="number" id="lt-sz_to" min="6" max="48" step="0.5" inputmode="decimal"></div>
+            <div class="field"><label for="lt-sz_subj">الموضوع</label><input type="number" id="lt-sz_subj" min="6" max="48" step="0.5" inputmode="decimal"></div>
+            <div class="field"><label for="lt-sz_sign">الاسم والصفة</label><input type="number" id="lt-sz_sign" min="6" max="48" step="0.5" inputmode="decimal"></div>
+            <div class="field"><label for="lt-sz_foot">المرفقات والنسخة</label><input type="number" id="lt-sz_foot" min="6" max="48" step="0.5" inputmode="decimal"></div>
+            <div class="field" id="lt-sz-en-f"><label for="lt-sz_en">النص الإنجليزي</label><input type="number" id="lt-sz_en" min="6" max="48" step="0.5" inputmode="decimal"></div>
+          </div></details>
+                <div class="cta"><button class="btn primary block" id="b-lt-pdf" data-primary><i data-ic="download"></i>حفظ PDF</button>
           <div class="prow2"><button class="btn" id="b-lt-docx"><i data-ic="word" data-s="18"></i>حفظ Word</button><button class="btn" id="b-lt-save">حفظ المسودة</button><button class="btn ghost" id="b-lt-new">خطاب جديد</button></div></div></div>
         <div id="res-letter" hidden></div></aside>
     </div></div>
@@ -2677,30 +2713,51 @@ $('#tpl-del').addEventListener('click',async()=>{const cur=TPLS.find(t=>t.id===L
 /* ---------- letter writer ---------- */
 const LTR={tplId:null,sigIds:new Set(),curId:null};
 const today=()=>{const d=new Date();return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear()};
-const LT_FIELDS=['date','ref','to','subject','greet','body','close','name','title','cc','att','dir','font','size'];
+const LT_FIELDS=['date','ref','to','subject','greet','body','close','name','title','cc','att','dir','font','size','to_en','subject_en','greet_en','body_en','close_en','name_en','title_en','sz_meta','sz_to','sz_subj','sz_sign','sz_foot','sz_en'];
 const LT_FONTS={plex:{css:'"IBM Plex Sans Arabic","Segoe UI",Tahoma,Arial,sans-serif',w:'Arial'},amiri:{css:'"Amiri","Traditional Arabic",serif',w:'Traditional Arabic'},naskh:{css:'"Noto Naskh Arabic","Simplified Arabic",serif',w:'Simplified Arabic'},tajawal:{css:'"Tajawal","IBM Plex Sans Arabic",sans-serif',w:'Tahoma'},cairo:{css:'"Cairo","IBM Plex Sans Arabic",sans-serif',w:'Segoe UI'}};
-const ltFont=f=>LT_FONTS[f.font]||LT_FONTS.plex;const ltPt=f=>Math.min(24,Math.max(9,+f.size||12));
+const ltFont=f=>LT_FONTS[f.font]||LT_FONTS.plex;const ltPt=f=>Math.min(48,Math.max(6,+f.size||12));
+const LT_SZR={meta:.875,to:1,subj:1,sign:1,foot:.8125,en:1};
+function ltSz(f,k){const v=parseFloat(f['sz_'+k]);return v>=6&&v<=48?v:Math.round(ltPt(f)*(LT_SZR[k]||1)*2)/2}
+const ltSzCss=(f,k)=>' style="font-size:'+(ltSz(f,k)*PX).toFixed(2)+'px"';
 function ltApply(el,f){el.style.fontFamily=ltFont(f).css;el.style.fontSize=(ltPt(f)*PX).toFixed(2)+'px';el.style.lineHeight=f.font==='amiri'||f.font==='naskh'?'2':'1.9'}
 async function ltFontReady(f){await cvFonts();try{const fam=ltFont(f).css.split(',')[0];if(document.fonts&&document.fonts.load)await Promise.race([Promise.all([document.fonts.load('400 16px '+fam,'عربي Aa'),document.fonts.load('700 16px '+fam,'عربي Aa')]),sleep(2500)])}catch(_){}}
 const LT_DEF={greet:'السلام عليكم ورحمة الله وبركاته،',close:'وتفضلوا بقبول فائق الاحترام والتقدير،'};
 function ltFields(){const f={};LT_FIELDS.forEach(k=>{f[k]=$('#lt-'+k).value});return f}
 function ltSetFields(f){LT_FIELDS.forEach(k=>{if(f[k]!=null)$('#lt-'+k).value=f[k]})}
-function ltNew(){ltSetFields({date:today(),ref:'',to:'',subject:'',greet:LT_DEF.greet,body:'',close:LT_DEF.close,cc:'',att:'',dir:'auto',font:$('#lt-font').value,size:$('#lt-size').value});LTR.curId=null;renderSavedLetters();ltPreview()}
-function ltDir(f){if(f.dir==='rtl'||f.dir==='ltr')return f.dir;const t=(f.body+' '+f.subject+' '+f.to).trim();return !t||AR.test(t)?'rtl':'ltr'}
+function ltNew(){ltSetFields({date:today(),ref:'',to:'',subject:'',greet:LT_DEF.greet,body:'',close:LT_DEF.close,cc:'',att:'',to_en:'',subject_en:'',greet_en:'Dear Sir/Madam,',body_en:'',close_en:'Yours sincerely,'});LTR.curId=null;renderSavedLetters();ltPreview()}
+function ltDir(f){if(f.dir==='rtl'||f.dir==='ltr')return f.dir;if(f.dir==='bi')return 'rtl';const t=(f.body+' '+f.subject+' '+f.to).trim();return !t||AR.test(t)?'rtl':'ltr'}
 const LBL={rtl:{date:'التاريخ: ',ref:'الرقم: ',subj:'الموضوع: ',cc:'نسخة إلى: ',att:'المرفقات: '},ltr:{date:'Date: ',ref:'Ref: ',subj:'Subject: ',cc:'CC: ',att:'Attachments: '}};
 const ltSigs=()=>[...LTR.sigIds].map(id=>SIGS.find(s=>s.id===id)).filter(Boolean);
-function ltHTML(f,dir){const L=LBL[dir],inl=s=>escH(s).replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>');let h='';const tr=s=>(s||'').trim();
-  if(tr(f.date)||tr(f.ref))h+='<div class="lt-meta">'+(tr(f.date)?'<div>'+L.date+escH(tr(f.date))+'</div>':'')+(tr(f.ref)?'<div>'+L.ref+escH(tr(f.ref))+'</div>':'')+'</div>';
-  const to=f.to.split('\n').map(s=>s.trim()).filter(Boolean);if(to.length)h+='<div class="lt-to">'+to.map(s=>'<p>'+inl(s)+'</p>').join('')+'</div>';
-  if(tr(f.subject))h+='<div class="lt-subj">'+L.subj+inl(tr(f.subject))+'</div>';
-  if(tr(f.greet))h+='<p class="lt-greet">'+inl(tr(f.greet))+'</p>';
-  const lines=f.body.replace(/\r\n?/g,'\n').replace(/^\n+|\n+$/g,'').split('\n');let i=0;const LI=/^\s*[-•]\s+/;
+function ltBodyChunks(t){const out=[];let cur=[];(t||'').replace(/\r\n?/g,'\n').replace(/^\n+|\n+$/g,'').split('\n').forEach(l=>{if(l.trim())cur.push(l);else if(cur.length){out.push(cur);cur=[]}});if(cur.length)out.push(cur);return out}
+function ltBodyHTML(lines,inl){let h='',i=0;const LI=/^\s*[-•]\s+/;
   while(i<lines.length){const l=lines[i];if(LI.test(l)){let ul='<ul>';while(i<lines.length&&LI.test(lines[i])){ul+='<li>'+inl(lines[i].replace(LI,''))+'</li>';i++}h+=ul+'</ul>';continue}
-    h+=l.trim()?'<p class="lt-b">'+inl(l)+'</p>':'<div class="lt-gap"></div>';i++}
+    h+=l.trim()?'<p class="lt-b">'+inl(l)+'</p>':'<div class="lt-gap"></div>';i++}return h}
+function ltSigImgs(){return ltSigs().map(s=>{const k=(s.size||100)/100;return '<img alt="" src="'+escH(s.url)+'" style="max-height:'+Math.round(86*k)+'px;max-width:'+Math.round(190*k)+'px">'}).join('')}
+function ltHTML(f,dir){if(f.dir==='bi')return ltHTMLBi(f);const L=LBL[dir],inl=s=>escH(s).replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>');let h='';const tr=s=>(s||'').trim();
+  if(tr(f.date)||tr(f.ref))h+='<div class="lt-meta"'+ltSzCss(f,'meta')+'>'+(tr(f.date)?'<div>'+L.date+escH(tr(f.date))+'</div>':'')+(tr(f.ref)?'<div>'+L.ref+escH(tr(f.ref))+'</div>':'')+'</div>';
+  const to=f.to.split('\n').map(s=>s.trim()).filter(Boolean);if(to.length)h+='<div class="lt-to"'+ltSzCss(f,'to')+'>'+to.map(s=>'<p>'+inl(s)+'</p>').join('')+'</div>';
+  if(tr(f.subject))h+='<div class="lt-subj"'+ltSzCss(f,'subj')+'><span class="u">'+L.subj+inl(tr(f.subject))+'</span></div>';
+  if(tr(f.greet))h+='<p class="lt-greet">'+inl(tr(f.greet))+'</p>';
+  h+=ltBodyHTML(f.body.replace(/\r\n?/g,'\n').replace(/^\n+|\n+$/g,'').split('\n'),inl);
   if(tr(f.close))h+='<p class="lt-close">'+inl(tr(f.close))+'</p>';
-  const sg=ltSigs();
-  if(tr(f.name)||tr(f.title)||sg.length)h+='<div class="lt-sign"><div>'+(tr(f.title)?'<p>'+escH(tr(f.title))+'</p>':'')+(tr(f.name)?'<p class="nm">'+escH(tr(f.name))+'</p>':'')+(sg.length?'<div class="sgi">'+sg.map(s=>{const k=(s.size||100)/100;return '<img alt="" src="'+escH(s.url)+'" style="max-height:'+Math.round(86*k)+'px;max-width:'+Math.round(190*k)+'px">'}).join('')+'</div>':'')+'</div></div>';
-  if(tr(f.cc)||tr(f.att))h+='<div class="lt-foot">'+(tr(f.att)?'<p>'+L.att+escH(tr(f.att))+'</p>':'')+(tr(f.cc)?'<p>'+L.cc+escH(tr(f.cc))+'</p>':'')+'</div>';
+  const sg=ltSigImgs();
+  if(tr(f.name)||tr(f.title)||sg)h+='<div class="lt-sign"><div'+ltSzCss(f,'sign')+'>'+(tr(f.title)?'<p>'+escH(tr(f.title))+'</p>':'')+(tr(f.name)?'<p class="nm">'+escH(tr(f.name))+'</p>':'')+(sg?'<div class="sgi">'+sg+'</div>':'')+'</div></div>';
+  if(tr(f.cc)||tr(f.att))h+='<div class="lt-foot"'+ltSzCss(f,'foot')+'>'+(tr(f.att)?'<p>'+L.att+escH(tr(f.att))+'</p>':'')+(tr(f.cc)?'<p>'+L.cc+escH(tr(f.cc))+'</p>':'')+'</div>';
+  return h}
+function ltHTMLBi(f){const A=LBL.rtl,E=LBL.ltr,inl=s=>escH(s).replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>'),tr=s=>(s||'').trim(),en=ltSzCss(f,'en');let h='';
+  const row=(a,e,cls,sa,se)=>a||e?'<div class="lt-bi'+(cls?' '+cls:'')+'"><div class="ar" dir="rtl"'+(sa||'')+'>'+a+'</div><div class="en" dir="ltr" lang="en"'+(se==null?en:se)+'>'+e+'</div></div>':'';
+  const meta=(L,cls)=>(tr(f.date)?'<div>'+L.date+'<bdi>'+escH(tr(f.date))+'</bdi></div>':'')+(tr(f.ref)?'<div>'+L.ref+'<bdi>'+escH(tr(f.ref))+'</bdi></div>':'');
+  if(tr(f.date)||tr(f.ref)){const m=ltSzCss(f,'meta');h+=row(meta(A),meta(E),'lt-meta2',m,m)}
+  const lines=t=>(t||'').split('\n').map(s=>s.trim()).filter(Boolean);const ta=lines(f.to),te=lines(f.to_en);
+  if(ta.length||te.length){const st=ltSzCss(f,'to');h+=row('<div class="lt-to">'+ta.map(s=>'<p>'+inl(s)+'</p>').join('')+'</div>','<div class="lt-to">'+te.map(s=>'<p>'+inl(s)+'</p>').join('')+'</div>','',st,st)}
+  if(tr(f.subject)||tr(f.subject_en)){const st=ltSzCss(f,'subj');h+=row(tr(f.subject)?'<div class="lt-subj"><span class="u">'+A.subj+inl(tr(f.subject))+'</span></div>':'',tr(f.subject_en)?'<div class="lt-subj"><span class="u">'+E.subj+inl(tr(f.subject_en))+'</span></div>':'','',st,st)}
+  h+=row(tr(f.greet)?'<p class="lt-greet">'+inl(tr(f.greet))+'</p>':'',tr(f.greet_en)?'<p class="lt-greet">'+inl(tr(f.greet_en))+'</p>':'');
+  const ca=ltBodyChunks(f.body),ce=ltBodyChunks(f.body_en);for(let i=0;i<Math.max(ca.length,ce.length);i++)h+=row(ca[i]?ltBodyHTML(ca[i],inl):'',ce[i]?ltBodyHTML(ce[i],inl):'');
+  h+=row(tr(f.close)?'<p class="lt-close">'+inl(tr(f.close))+'</p>':'',tr(f.close_en)?'<p class="lt-close">'+inl(tr(f.close_en))+'</p>':'');
+  const sgn=(t,n)=>tr(t)||tr(n)?'<div class="lt-sign"><div>'+(tr(t)?'<p>'+escH(tr(t))+'</p>':'')+(tr(n)?'<p class="nm">'+escH(tr(n))+'</p>':'')+'</div></div>':'';
+  const ss=ltSzCss(f,'sign');h+=row(sgn(f.title,f.name),sgn(f.title_en,f.name_en),'',ss,ss);
+  const sg=ltSigImgs();if(sg)h+='<div class="lt-sigrow">'+sg+'</div>';
+  if(tr(f.cc)||tr(f.att))h+='<div class="lt-foot"'+ltSzCss(f,'foot')+'>'+(tr(f.att)?'<p>'+A.att+escH(tr(f.att))+'</p>':'')+(tr(f.cc)?'<p>'+A.cc+escH(tr(f.cc))+'</p>':'')+'</div>';
   return h}
 async function tplCfg(id){const t=id&&TPLS.find(x=>x.id===id);if(!t)return lhCfg();const im={};
   for(const k of ['logo','himg','fimg']){const r=t.data&&t.data.imgs&&t.data.imgs[k];if(r){try{im[k]=(await Store.loadImage(r)).el}catch(_){}}}
@@ -2710,7 +2767,7 @@ const PX=96/72;
 let ltT;function ltPreview(){clearTimeout(ltT);ltT=setTimeout(ltPreviewNow,120)}
 async function ltPreviewNow(){if(current!=='letter')return;const c=await tplCfg(LTR.tplId),b=ltBox(c);
   const cv=$('#lt-bg');cv.width=1588;cv.height=2246;const g=cv.getContext('2d');g.clearRect(0,0,cv.width,cv.height);drawLH(g,cv.width/b.W,b.W,b.H,c,b.L);
-  const f=ltFields(),dir=ltDir(f),ct=$('#lt-content');ct.dir=dir;ltApply(ct,f);$('#lt-font-hint').textContent='في ملف Word يُستخدم خط '+ltFont(f).w+' بحجم '+ltPt(f)+'.';Object.assign(ct.style,{left:b.x*PX+'px',top:b.y*PX+'px',width:b.w*PX+'px',height:b.h*PX+'px'});ct.innerHTML=ltHTML(f,dir);
+  const f=ltFields(),dir=ltDir(f),ct=$('#lt-content');ct.dir=dir;ltApply(ct,f);$('#lt-en').hidden=f.dir!=='bi';$('#lt-sz-en-f').hidden=f.dir!=='bi';$('#lt-font-hint').textContent='في ملف Word يُستخدم خط '+ltFont(f).w+' بحجم '+ltPt(f)+'.';[['meta'],['to'],['subj'],['sign'],['foot'],['en']].forEach(([k])=>{$('#lt-sz_'+k).placeholder='تلقائي ('+(Math.round(ltPt(f)*(LT_SZR[k]||1)*2)/2)+')'});Object.assign(ct.style,{left:b.x*PX+'px',top:b.y*PX+'px',width:b.w*PX+'px',height:b.h*PX+'px'});ct.innerHTML=ltHTML(f,dir);
   const n=Math.max(1,Math.ceil((ct.scrollHeight-4)/(b.h*PX)));$('#lt-pages').textContent=n===1?'صفحة واحدة':(n===2?'صفحتان':n+' صفحات')+'. المعاينة تعرض الصفحة الأولى.';ltScale();
   if((f.body.trim()||f.subject.trim())&&(stepState.letter||1)<2)setStep('letter',2)}
 function ltScale(){const w=$('#lt-wrap');const s=Math.min(1,(w.clientWidth||560)/794);$('#lt-stage').style.transform='scale('+s+')';w.style.height=Math.round(1123*s)+'px'}
@@ -2785,7 +2842,7 @@ function renderSavedLetters(){const box=$('#lt-saved');box.innerHTML='';$('#lt-s
     const bs=document.createElement('div');bs.className='prow2';const o=document.createElement('button');o.className='btn sm';o.textContent='فتح';o.onclick=()=>ltLoad(it);
     bs.append(o,iconBtn('trash','حذف الخطاب',async()=>{try{await Store.del('letter',it.id);if(LTR.curId===it.id)LTR.curId=null;LETTERS=await Store.list('letter');renderSavedLetters()}catch(_){toast('تعذّر الحذف')}},'danger'));
     r.append(m,bs);box.appendChild(r)})}
-function ltLoad(it){const d=it.data||{};ltSetFields(Object.assign({date:'',ref:'',to:'',subject:'',greet:'',body:'',close:'',name:'',title:'',cc:'',att:'',dir:'auto',font:'plex',size:'12'},d.fields||{}));
+function ltLoad(it){const d=it.data||{};ltSetFields(Object.assign({date:'',ref:'',to:'',subject:'',greet:'',body:'',close:'',name:'',title:'',cc:'',att:'',dir:'auto',font:'plex',size:'12',to_en:'',subject_en:'',greet_en:'Dear Sir/Madam,',body_en:'',close_en:'Yours sincerely,',name_en:'',title_en:'',sz_meta:'',sz_to:'',sz_subj:'',sz_sign:'',sz_foot:'',sz_en:''},d.fields||{}));
   LTR.tplId=d.tplId||'';LTR.sigIds=new Set(d.sigIds||[]);LTR.curId=it.id;renderTplSelect();renderLtSigs();renderSavedLetters();ltPreview();window.scrollTo({top:0,behavior:'smooth'});toast('فُتح الخطاب «'+(it.name||'')+'»')}
 $('#b-lt-save').addEventListener('click',async()=>{const f=ltFields();const id=LTR.curId||newId();const name=(f.subject.trim()||f.to.split('\n')[0].trim()||'خطاب '+f.date).slice(0,80);
   try{await Store.put('letter',{id,name,data:{fields:f,tplId:LTR.tplId,sigIds:[...LTR.sigIds]}});LTR.curId=id;LETTERS=await Store.list('letter');renderSavedLetters();toast(Store.cloud?'حُفظ الخطاب في حسابك':'حُفظ الخطاب على هذا الجهاز')}
@@ -2793,7 +2850,7 @@ $('#b-lt-save').addEventListener('click',async()=>{const f=ltFields();const id=L
 $('#b-lt-new').addEventListener('click',ltNew);
 const ltFileName=f=>'خطاب'+(f.subject.trim()?'-'+f.subject.trim().replace(/[\\/:*?"<>|]+/g,'').slice(0,40):'');
 const waitImgs=el=>Promise.all([...el.querySelectorAll('img')].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r})));
-function ltReady(f){if(!f.body.trim()&&!f.subject.trim()){toast('اكتب الموضوع أو نص الخطاب أولاً');return false}return true}
+function ltReady(f){if(!f.body.trim()&&!f.subject.trim()&&!(f.dir==='bi'&&(f.body_en.trim()||f.subject_en.trim()))){toast('اكتب الموضوع أو نص الخطاب أولاً');return false}return true}
 $('#b-lt-pdf').addEventListener('click',async()=>{const f=ltFields();if(!ltReady(f))return;busy.open('تجهيز الخطاب');
   try{const c=await tplCfg(LTR.tplId),b=ltBox(c),dir=ltDir(f);const h2c=await lib('h2c');const host=$('#render-host');
     await ltFontReady(f);
@@ -2808,28 +2865,51 @@ $('#b-lt-pdf').addEventListener('click',async()=>{const f=ltFields();if(!ltReady
     host.replaceChildren();busy.close();await deliver('letter',ltFileName(f)+'.pdf',new Blob([await out.save()],{type:'application/pdf'}),pages.length+' صفحة');
   }catch(e){busy.close();if(e&&e.lib)pdfErr(e);else{console.error(e);toast('تعذّر إنشاء الخطاب')}}});
 async function docxLetter(f,dir,hdr,ftr,sigs){
-  const z=new JSZip(),rels=[],rtl=dir==='rtl',L=LBL[dir];let n=0;const FN=xmlEsc(ltFont(f).w),SZ=ltPt(f)*2,sm=k=>Math.round(SZ*k);
+  const z=new JSZip(),rels=[],rtl=dir==='rtl',L=LBL[dir];let n=0;const FN=xmlEsc(ltFont(f).w),SZ=Math.round(ltPt(f)*2),hz=k=>Math.round(ltSz(f,k)*2);
   const NS='xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"';
   const REL='http://schemas.openxmlformats.org/officeDocument/2006/relationships/';
   const drawing=(rid,cx,cy,id)=>'<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="'+cx+'" cy="'+cy+'"/><wp:docPr id="'+id+'" name="Picture '+id+'"/><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="'+id+'" name="Picture '+id+'"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="'+rid+'"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="'+cx+'" cy="'+cy+'"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>';
-  const run=(t,o={})=>'<w:r><w:rPr><w:rFonts w:ascii="'+FN+'" w:hAnsi="'+FN+'" w:cs="'+FN+'"/>'+(o.b?'<w:b/><w:bCs/>':'')+'<w:sz w:val="'+(o.sz||SZ)+'"/><w:szCs w:val="'+(o.sz||SZ)+'"/>'+(o.u?'<w:u w:val="single"/>':'')+(rtl?'<w:rtl/>':'')+'</w:rPr><w:t xml:space="preserve">'+xmlEsc(t)+'</w:t></w:r>';
+  const run=(t,o={})=>'<w:r><w:rPr><w:rFonts w:ascii="'+FN+'" w:hAnsi="'+FN+'" w:cs="'+FN+'"/>'+(o.b?'<w:b/><w:bCs/>':'')+'<w:sz w:val="'+(o.sz||SZ)+'"/><w:szCs w:val="'+(o.sz||SZ)+'"/>'+(o.u?'<w:u w:val="single"/>':'')+(rtl&&!o.ltr?'<w:rtl/>':'')+'</w:rPr><w:t xml:space="preserve">'+xmlEsc(t)+'</w:t></w:r>';
   const runs=(t,o={})=>t.split(/(\*\*[^*]+\*\*)/).filter(Boolean).map(p=>/^\*\*[^*]+\*\*$/.test(p)?run(p.slice(2,-2),Object.assign({},o,{b:true})):run(p,o)).join('');
-  const P=(inner,o={})=>'<w:p><w:pPr>'+(rtl?'<w:bidi/>':'')+'<w:spacing w:before="0" w:after="'+(o.after==null?80:o.after)+'" w:line="336" w:lineRule="auto"/>'+(o.jc?'<w:jc w:val="'+o.jc+'"/>':'')+'</w:pPr>'+inner+'</w:p>';
+  const P=(inner,o={})=>'<w:p><w:pPr>'+(rtl&&!o.ltr?'<w:bidi/>':o.ltr?'<w:bidi w:val="0"/>':'')+'<w:spacing w:before="0" w:after="'+(o.after==null?80:o.after)+'" w:line="336" w:lineRule="auto"/>'+(o.jc?'<w:jc w:val="'+o.jc+'"/>':'')+'</w:pPr>'+inner+'</w:p>';
   const T=(t,o={})=>P(runs(t,o),o);const tr=s=>(s||'').trim();let body='';
-  if(tr(f.date))body+=T(L.date+tr(f.date),{jc:'right',sz:sm(.9),after:0});
-  if(tr(f.ref))body+=T(L.ref+tr(f.ref),{jc:'right',sz:sm(.9),after:0});
+  const sigPara=jc=>{let inner='';sigs.forEach(s=>{n++;const id='rIdS'+n;z.file('word/media/sig'+n+'.png',s.blob);rels.push('<Relationship Id="'+id+'" Type="'+REL+'image" Target="media/sig'+n+'.png"/>');
+    const kk=(s.size||100)/100;let h=Math.min(86*kk,s.h),w=s.w*h/s.h;if(w>190*kk){w=190*kk;h=w*s.h/s.w}inner+=drawing(id,Math.round(w*9525),Math.round(h*9525),100+n)+run('   ')});return P(inner,{jc})};
+  if(f.dir==='bi'){const A=LBL.rtl,E=LBL.ltr,EZ=hz('en'),CW=4819;
+    const cell=(x,ltr)=>'<w:tc><w:tcPr><w:tcW w:w="'+CW+'" w:type="dxa"/></w:tcPr>'+(x||P('',{ltr,after:0}))+'</w:tc>';
+    const row=(a,e)=>a||e?'<w:tr>'+cell(a,false)+cell(e,true)+'</w:tr>':'';
+    const lines=t=>(t||'').split('\n').map(s=>s.trim()).filter(Boolean);
+    const bodyP=(ch,ltr)=>(ch||[]).map(l=>{const m=l.match(/^\s*[-•]\s+(.*)/);return m?T('• '+m[1],{ltr,sz:ltr?EZ:undefined}):T(l,{jc:'both',ltr,sz:ltr?EZ:undefined})}).join('');
+    let rows='';const mE=hz('meta');
+    rows+=row((tr(f.date)?T(A.date+tr(f.date),{sz:mE,after:0}):'')+(tr(f.ref)?T(A.ref+tr(f.ref),{sz:mE,after:0}):''),(tr(f.date)?T(E.date+tr(f.date),{sz:mE,after:0,ltr:true}):'')+(tr(f.ref)?T(E.ref+tr(f.ref),{sz:mE,after:0,ltr:true}):''));
+    if(tr(f.date)||tr(f.ref))rows+=row(P('',{after:60}),P('',{after:60,ltr:true}));
+    const ta=lines(f.to),te=lines(f.to_en);rows+=row(ta.map(s=>T(s,{b:true,after:0,sz:hz('to')})).join(''),te.map(s=>T(s,{b:true,after:0,sz:hz('to'),ltr:true})).join(''));
+    rows+=row(tr(f.subject)?T(A.subj+tr(f.subject),{b:true,u:true,jc:'center',after:160,sz:hz('subj')}):'',tr(f.subject_en)?T(E.subj+tr(f.subject_en),{b:true,u:true,jc:'center',after:160,sz:hz('subj'),ltr:true}):'');
+    rows+=row(tr(f.greet)?T(tr(f.greet),{after:100}):'',tr(f.greet_en)?T(tr(f.greet_en),{after:100,ltr:true,sz:EZ}):'');
+    const ca=ltBodyChunks(f.body),ce=ltBodyChunks(f.body_en);for(let i=0;i<Math.max(ca.length,ce.length);i++)rows+=row(bodyP(ca[i],false),bodyP(ce[i],true));
+    rows+=row(tr(f.close)?T(tr(f.close),{after:160}):'',tr(f.close_en)?T(tr(f.close_en),{after:160,ltr:true,sz:EZ}):'');
+    const sgn=(t,nm,ltr)=>(tr(t)?T(tr(t),{jc:'center',after:0,sz:hz('sign'),ltr}):'')+(tr(nm)?T(tr(nm),{jc:'center',b:true,after:60,sz:hz('sign'),ltr}):'');
+    rows+=row(sgn(f.title,f.name,false),sgn(f.title_en,f.name_en,true));
+    const B=v=>'<w:'+v+' w:val="nil"/>';
+    body+='<w:tbl><w:tblPr><w:bidiVisual/><w:tblW w:w="'+(2*CW)+'" w:type="dxa"/><w:tblBorders>'+B('top')+B('left')+B('bottom')+B('right')+B('insideH')+'<w:insideV w:val="single" w:sz="4" w:space="0" w:color="D5D9E0"/></w:tblBorders><w:tblLayout w:type="fixed"/><w:tblCellMar><w:left w:w="170" w:type="dxa"/><w:right w:w="170" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid><w:gridCol w:w="'+CW+'"/><w:gridCol w:w="'+CW+'"/></w:tblGrid>'+rows+'</w:tbl>';
+    if(sigs.length)body+=sigPara('center');
+    if(tr(f.att))body+=P('',{after:120})+T(A.att+tr(f.att),{sz:hz('foot'),after:0});
+    if(tr(f.cc))body+=T(A.cc+tr(f.cc),{sz:hz('foot'),after:0});
+  }else{
+    if(tr(f.date))body+=T(L.date+tr(f.date),{jc:'right',sz:hz('meta'),after:0});
+  if(tr(f.ref))body+=T(L.ref+tr(f.ref),{jc:'right',sz:hz('meta'),after:0});
   if(tr(f.date)||tr(f.ref))body+=P('',{after:200});
-  const to=f.to.split('\n').map(s=>s.trim()).filter(Boolean);to.forEach(s=>{body+=T(s,{b:true,after:0})});if(to.length)body+=P('',{after:160});
-  if(tr(f.subject))body+=T(L.subj+tr(f.subject),{b:true,u:true,jc:'center',after:240});
+  const to=f.to.split('\n').map(s=>s.trim()).filter(Boolean);to.forEach(s=>{body+=T(s,{b:true,after:0,sz:hz('to')})});if(to.length)body+=P('',{after:160});
+  if(tr(f.subject))body+=T(L.subj+tr(f.subject),{b:true,u:true,jc:'center',after:240,sz:hz('subj')});
   if(tr(f.greet))body+=T(tr(f.greet),{after:160});
   f.body.replace(/\r\n?/g,'\n').replace(/^\n+|\n+$/g,'').split('\n').forEach(l=>{const m=l.match(/^\s*[-•]\s+(.*)/);body+=m?T('• '+m[1]):(l.trim()?T(l,{jc:'both'}):P(''))});
   if(tr(f.close))body+=P('',{after:120})+T(tr(f.close),{after:240});
-  if(tr(f.title))body+=T(tr(f.title),{jc:'right',after:0});
-  if(tr(f.name))body+=T(tr(f.name),{jc:'right',b:true,after:60});
-  if(sigs.length){let inner='';sigs.forEach(s=>{n++;const id='rIdS'+n;z.file('word/media/sig'+n+'.png',s.blob);rels.push('<Relationship Id="'+id+'" Type="'+REL+'image" Target="media/sig'+n+'.png"/>');
-    const kk=(s.size||100)/100;let h=Math.min(86*kk,s.h),w=s.w*h/s.h;if(w>190*kk){w=190*kk;h=w*s.h/s.w}inner+=drawing(id,Math.round(w*9525),Math.round(h*9525),100+n)+run('   ')});body+=P(inner,{jc:'right'})}
-  if(tr(f.att))body+=P('',{after:120})+T(L.att+tr(f.att),{sz:sm(.875),after:0});
-  if(tr(f.cc))body+=T(L.cc+tr(f.cc),{sz:sm(.875),after:0});
+  if(tr(f.title))body+=T(tr(f.title),{jc:'right',after:0,sz:hz('sign')});
+  if(tr(f.name))body+=T(tr(f.name),{jc:'right',b:true,after:60,sz:hz('sign')});
+  if(sigs.length)body+=sigPara('right');
+  if(tr(f.att))body+=P('',{after:120})+T(L.att+tr(f.att),{sz:hz('foot'),after:0});
+  if(tr(f.cc))body+=T(L.cc+tr(f.cc),{sz:hz('foot'),after:0});
+  }
   const PAGE_EMU=7560000;let refs='',ct='',top=1134,bottom=1134;
   const part=(kind,img)=>{const tag=kind==='header'?'hdr':'ftr',name=kind+'1.xml',cy=Math.round(PAGE_EMU*img.h/img.w);z.file('word/media/'+kind+'.png',img.blob);
     z.file('word/_rels/'+name+'.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdImg" Type="'+REL+'image" Target="media/'+kind+'.png"/></Relationships>');
