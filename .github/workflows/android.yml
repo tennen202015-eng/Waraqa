@@ -33,7 +33,9 @@ jobs:
       - name: Build
         env:
           WARAQA_KS_PASS: ${{ secrets.WARAQA_KS_PASS }}
-        run: gradle -p android assembleRelease --no-daemon --stacktrace
+        run: |
+          set -o pipefail
+          gradle -p android assembleRelease --no-daemon --stacktrace 2>&1 | tee build.log
       - name: Rename
         run: cp android/app/build/outputs/apk/release/app-release.apk Waraqa.apk
       - uses: actions/upload-artifact@v4
@@ -46,3 +48,11 @@ jobs:
         run: |
           gh release delete android --yes --cleanup-tag || true
           gh release create android Waraqa.apk --title "ورقة لأندرويد" --notes "حمّل ملف Waraqa.apk وثبّته على جوالك. رقم الإصدار: 1.0.${{ github.run_number }}" --latest
+      - name: Share build log on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          touch build.log
+          gh release delete android-log --yes --cleanup-tag || true
+          gh release create android-log build.log --title "Android build log" --notes "Build log for run ${{ github.run_number }}" --prerelease
