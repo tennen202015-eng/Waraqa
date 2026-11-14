@@ -1,0 +1,41 @@
+{
+  "name": "waraqa",
+  "productName": "Waraqa",
+  "version": "1.0.0",
+  "description": "ورقة: أدوات الصور وملفات PDF",
+  "author": "Waraqa",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win --publish never"
+  },
+  "devDependencies": {
+    "electron": "33.2.1",
+    "electron-builder": "25.1.8"
+  },
+  "build": {
+    "appId": "com.waraqa.app",
+    "productName": "Waraqa",
+    "executableName": "Waraqa",
+    "files": ["main.js", "offline.html", "build/icon.png"],
+    "directories": { "output": "dist", "buildResources": "build" },
+    "win": {
+      "icon": "build/icon.png",
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "ورقة",
+      "artifactName": "Waraqa-Setup.${ext}"
+    },
+    "portable": { "artifactName": "Waraqa-Portable.${ext}" }
+  }
+}
