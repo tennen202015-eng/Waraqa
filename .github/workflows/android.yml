@@ -26,6 +26,7 @@ jobs:
         env:
           KS_B64: ${{ secrets.WARAQA_KEYSTORE_B64 }}
         run: |
+          echo "::notice::signing step"
           if [ -n "$KS_B64" ]; then
             echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/waraqa.jks"
             echo "WARAQA_KEYSTORE=$RUNNER_TEMP/waraqa.jks" >> "$GITHUB_ENV"
@@ -48,8 +49,16 @@ jobs:
         run: |
           gh release delete android --yes --cleanup-tag || true
           gh release create android Waraqa.apk --title "ورقة لأندرويد" --notes "حمّل ملف Waraqa.apk وثبّته على جوالك. رقم الإصدار: 1.0.${{ github.run_number }}" --latest
+      - name: Report errors as annotations
+        if: failure()
+        run: |
+          touch build.log
+          echo "::notice::log lines $(wc -l < build.log)"
+          grep -nE "error:|What went wrong|FAILED|Could not|> .*failed|Exception" build.log | head -40 | while IFS= read -r l; do echo "::warning::${l//%/%25}"; done
+          tail -15 build.log | while IFS= read -r l; do echo "::notice::${l//%/%25}"; done
       - name: Share build log on failure
         if: failure()
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
