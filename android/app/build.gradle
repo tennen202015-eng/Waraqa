@@ -1,0 +1,40 @@
+plugins { id 'com.android.application' }
+
+def runNo = (System.getenv('GITHUB_RUN_NUMBER') ?: '1').toInteger()
+def ks = System.getenv('WARAQA_KEYSTORE')
+
+android {
+    namespace 'com.waraqa.app'
+    compileSdk 34
+    defaultConfig {
+        applicationId 'com.waraqa.app'
+        minSdk 24
+        targetSdk 34
+        versionCode runNo
+        versionName "1.0.${runNo}"
+    }
+    signingConfigs {
+        release {
+            if (ks) {
+                storeFile file(ks)
+                storePassword System.getenv('WARAQA_KS_PASS')
+                keyAlias 'waraqa'
+                keyPassword System.getenv('WARAQA_KS_PASS')
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig ks ? signingConfigs.release : signingConfigs.debug
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core:1.13.1'
+}

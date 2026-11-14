@@ -1250,6 +1250,12 @@ $('#pw-cancel').addEventListener('click',()=>{$('#pw').hidden=true;pwResolve&&pw
 const ALLOWED=/\.(gif|png|jpe?g|webp|mp4|webm|mov|txt|json|md|docx|pptx|epub|csv|ttf|html|svg|pdf|xlsx|zip)$/i;
 let dlP=null;
 function getDl(){if(!dlP){dlP=(window.claude&&window.claude.use)?window.claude.use('downloads').catch(()=>null):Promise.resolve(undefined)}return dlP}
+async function androidSave(name,blob){const A=window.WaraqaAndroid,id=A.begin(name,blob.type||'application/octet-stream');if(!id)throw new Error('begin');
+  const CH=3*256*1024;for(let o=0;o<blob.size;o+=CH){const b=new Uint8Array(await blob.slice(o,o+CH).arrayBuffer());let s='';for(let i=0;i<b.length;i+=8192)s+=String.fromCharCode.apply(null,b.subarray(i,i+8192));if(!A.chunk(id,btoa(s)))throw new Error('chunk')}
+  if(!A.end(id))throw new Error('end')}
+window.waraqaBack=()=>{if(!$('#busy').hidden)return true;if(!$('#sheet').hidden){$('#ed-close').click();return true}const open=[...document.querySelectorAll('.modal')].find(m=>!m.hidden&&m.id!=='busy');
+  if(open){const c=open.querySelector('#sgc-cancel,#sig-cancel,#pw-cancel,#acct-cancel,#acct-close');if(c){c.click();return true}open.hidden=true;return true}
+  if(current){goHome();return true}return false};
 async function saveFile(name,data){
   const dl=await getDl();
   if(dl){
@@ -1260,6 +1266,7 @@ async function saveFile(name,data){
   }
   if(dl===null){toast('حفظ الملفات غير متاح في هذا العرض. افتح الصفحة في المتصفح.');return}
   const blob=data instanceof Blob?data:new Blob([data]);
+  if(window.WaraqaAndroid){try{await androidSave(name,blob)}catch(e){console.error(e);toast('تعذّر حفظ الملف')}return}
   const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),8000);
 }

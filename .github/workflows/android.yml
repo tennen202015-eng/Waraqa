@@ -1,0 +1,48 @@
+name: Android APK
+
+on:
+  push:
+    branches: [main]
+    paths: ['android/**', '.github/workflows/android.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Signing key
+        env:
+          KS_B64: ${{ secrets.WARAQA_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KS_B64" ]; then
+            echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/waraqa.jks"
+            echo "WARAQA_KEYSTORE=$RUNNER_TEMP/waraqa.jks" >> "$GITHUB_ENV"
+          fi
+      - name: Build
+        env:
+          WARAQA_KS_PASS: ${{ secrets.WARAQA_KS_PASS }}
+        run: gradle -p android assembleRelease --no-daemon --stacktrace
+      - name: Rename
+        run: cp android/app/build/outputs/apk/release/app-release.apk Waraqa.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Waraqa-apk
+          path: Waraqa.apk
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete android --yes --cleanup-tag || true
+          gh release create android Waraqa.apk --title "ورقة لأندرويد" --notes "حمّل ملف Waraqa.apk وثبّته على جوالك. رقم الإصدار: 1.0.${{ github.run_number }}" --latest
